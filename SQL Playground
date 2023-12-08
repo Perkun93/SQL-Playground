@@ -212,3 +212,54 @@ FROM doctors AS d
 JOIN admissions AS a ON d.doctor_id = a.attending_doctor_id
 GROUP BY d.doctor_id;
 
+-- Show first_name, last_name, and the total number of admissions attended for each doctor.
+-- Every admission has been attended by a doctor.
+
+SELECT 
+    d.first_name,
+    d.last_name, 
+    COUNT(*) AS total
+FROM 
+    doctors AS d
+JOIN 
+    admissions AS a
+ON 
+    d.doctor_id = a.attending_doctor_id
+GROUP BY 
+    d.doctor_id;
+
+
+-- For each doctor, display their id, full name, and the first and last admission date they attended.
+
+SELECT 
+    d.doctor_id,
+    CONCAT(d.first_name, ' ', d.last_name) AS full_name,
+    MAX(ad.admission_date) AS last_admission_date,
+    MIN(ad.admission_date) AS first_admission_date
+FROM 
+    doctors AS d
+JOIN 
+    admissions AS ad
+ON 
+    ad.attending_doctor_id = d.doctor_id
+GROUP BY 
+    d.doctor_id;
+
+-- Display the total amount of patients for each province. Order by descending.
+
+SELECT 
+    pn.province_name, 
+    COUNT(*) AS patient_count
+FROM 
+    patients AS p
+JOIN 
+    province_names AS pn
+ON 
+    p.province_id = pn.province_id
+GROUP BY 
+    pn.province_name
+ORDER BY 
+    COUNT(*) DESC;
+
+
+
