@@ -51,3 +51,164 @@ SELECT
   COUNT(*) AS total_admissions
 FROM admissions
 WHERE patient_id = 579;
+
+-- Retrieve patient_id, first_name, and last_name from patients with a diagnosis of 'Dementia' using a join with the admissions table
+SELECT p.patient_id, p.first_name, p.last_name
+FROM patients AS p
+JOIN admissions AS a ON p.patient_id = a.patient_id
+WHERE a.diagnosis = 'Dementia';
+
+-- Alternatively, you can use a subquery to achieve the same result
+SELECT patient_id, first_name, last_name
+FROM patients
+WHERE patient_id IN (
+    SELECT patient_id
+    FROM admissions
+    WHERE diagnosis = 'Dementia'
+);
+
+-- Display every patient's first_name, ordered by the length of each name and then alphabetically
+SELECT first_name
+FROM patients
+ORDER BY LEN(first_name), first_name ASC;
+
+-- Show the total number of male and female patients in the patients table. Display the results in the same row.
+SELECT 
+  SUM(Gender = 'M') AS male_count, 
+  SUM(Gender = 'F') AS female_count
+FROM patients;
+
+-- Show first and last name, allergies from patients with allergies to 'Penicillin' or 'Morphine'. Order results by allergies, first_name, and last_name.
+SELECT 
+  first_name,
+  last_name,
+  allergies
+FROM patients
+WHERE allergies IN ('Penicillin', 'Morphine')
+ORDER BY allergies, first_name, last_name ASC;
+
+-- Show the city and the total number of patients in the city. Order from most to least patients and then by city name ascending.
+SELECT
+  city,
+  COUNT(*) AS num_patients
+FROM patients
+GROUP BY city
+ORDER BY num_patients DESC, city ASC;
+
+-- Show all allergies ordered by popularity. Remove NULL values from the query.
+SELECT 
+  allergies,
+  COUNT(*) AS total_diagnosis
+FROM patients
+WHERE allergies IS NOT NULL
+GROUP BY allergies
+ORDER BY total_diagnosis DESC;
+
+-- Based on the cities that our patients live in, show unique cities that are in province_id 'NS'?
+SELECT DISTINCT(city) AS unique_cities
+FROM patients
+WHERE province_id = 'NS';
+
+-- Alternatively, using GROUP BY to find unique cities in province_id 'NS'
+SELECT city
+FROM patients
+WHERE province_id = 'NS'
+GROUP BY city;
+
+-- Write a query to find the first_name, last name, and birth date of patients who have a height greater than 160 and weight greater than 70.
+SELECT
+  first_name,
+  last_name,
+  birth_date
+FROM patients
+WHERE height > 160 AND weight > 70;
+
+-- Write a query to find the list of patients' first_name, last_name, and allergies from Hamilton where allergies are not null.
+SELECT
+  first_name,
+  last_name,
+  allergies
+FROM patients
+WHERE
+  city = 'Hamilton'
+  AND allergies IS NOT NULL;
+
+-- Show all patient's first_name, last_name, and birth_date who were born in the 1970s decade. Sort the list starting from the earliest birth_date.
+SELECT
+  first_name,
+  last_name,
+  birth_date
+FROM patients
+WHERE year(birth_date) BETWEEN 1970 AND 1979
+ORDER BY birth_date ASC;
+
+-- Alternative queries to achieve the same result
+SELECT
+  first_name,
+  last_name,
+  birth_date
+FROM patients
+WHERE year(birth_date) LIKE '197%'
+ORDER BY birth_date ASC;
+
+SELECT
+  first_name,
+  last_name,
+  birth_date
+FROM patients
+WHERE
+  birth_date >= '1970-01-01'
+  AND birth_date < '1980-01-01'
+ORDER BY birth_date ASC;
+
+-- Display each patient's full name in a single column. Last_name in all upper letters must appear first, then first_name in all lower case letters. Separate with a comma. Order by first_name in descending order.
+SELECT
+  CONCAT(UPPER(last_name), ',', LOWER(first_name)) AS full_name
+FROM patients
+ORDER BY first_name DESC;
+
+-- Alternative query using concatenation with '||'
+SELECT
+  UPPER(last_name) || ',' || LOWER(first_name) AS full_name
+FROM patients
+ORDER BY first_name DESC;
+
+-- Show the province_id(s), sum of height, where the total sum of its patient's height is greater than or equal to 7,000.
+SELECT 
+  province_id,
+  SUM(height) AS sum_height
+FROM patients
+GROUP BY province_id
+HAVING SUM(height) >= 7000;
+
+-- Show the difference between the largest weight and smallest weight for patients with the last name 'Maroni'.
+SELECT 
+  (MAX(weight) - MIN(weight)) AS difference
+FROM patients
+WHERE last_name = 'Maroni';
+
+-- Show all of the days of the month (1-31) and how many admission_dates occurred on that day. Sort by the day with the most admissions to least admissions.
+SELECT 
+  DAY(admission_date) AS admission_day,
+  COUNT(admission_date) AS number_of_admissions
+FROM admissions
+GROUP BY admission_day
+ORDER BY number_of_admissions DESC;
+
+-- Show all columns for patient_id 542's most recent admission_date.
+SELECT *
+FROM admissions
+WHERE patient_id = 542
+ORDER BY admission_date DESC
+LIMIT 1;
+
+-- Show first_name, last_name, and the total number of admissions attended for each doctor.
+-- Every admission has been attended by a doctor.
+SELECT 
+  d.first_name,
+  d.last_name,
+  COUNT(*) AS total
+FROM doctors AS d
+JOIN admissions AS a ON d.doctor_id = a.attending_doctor_id
+GROUP BY d.doctor_id;
+
