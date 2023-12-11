@@ -296,3 +296,57 @@ SELECT
 FROM 
 
 
+-- Query 1: Show patients without records in the admissions table
+SELECT
+  patient_id,
+  first_name,
+  last_name
+FROM patients
+WHERE patient_id NOT IN (
+    SELECT patient_id
+    FROM admissions
+);
+
+-- Query 2: Show patients without records in the admissions table using LEFT JOIN
+SELECT
+  patients.patient_id,
+  first_name,
+  last_name
+FROM patients
+LEFT JOIN admissions ON patients.patient_id = admissions.patient_id
+WHERE admissions.patient_id IS NULL;
+
+-- Query 3: Show patient_id, first_name, last_name, and attending doctor's specialty for Epilepsy patients with Lisa as the doctor's first name
+SELECT
+  p.patient_id,
+  p.first_name,
+  p.last_name,
+  d.specialty
+FROM patients AS p
+JOIN admissions AS a ON p.patient_id = a.patient_id
+JOIN doctors AS d ON a.attending_doctor_id = d.doctor_id
+WHERE a.diagnosis ='Epilepsy' AND d.first_name = 'Lisa';
+
+-- Query 4: Another version of Query 3 using explicit join syntax
+SELECT
+  a.patient_id,
+  a.first_name,
+  a.last_name,
+  b.specialty
+FROM patients a,
+     doctors b,
+     admissions c
+WHERE a.patient_id = c.patient_id
+  AND c.attending_doctor_id = b.doctor_id
+  AND c.diagnosis = 'Epilepsy'
+  AND b.first_name = 'Lisa';
+
+-- Query 5: Show patient_id and temp_password for patients with medical documents
+SELECT
+  patient_id,
+  CONCAT(patient_id, LEN(last_name), YEAR(birth_date)) AS temp_password
+FROM patients 
+WHERE patient_id IN (SELECT patient_id FROM admissions);
+
+
+
